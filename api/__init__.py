@@ -51,7 +51,7 @@ def create_app(config = config_dict['dev']):
     }
     
     api = Api(app,
-        title='SCISSORS',
+        title='CIXORS',
         description='A URL shortener with RESTX API service',
         authorizations=authorization,
         security='Bearer Auth'
