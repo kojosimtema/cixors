@@ -193,7 +193,7 @@ class Refresh(Resource):
 class ChangePassword(Resource):
     @auth_namespace.expect(change_password_model)
     @auth_namespace.doc(description='Change user password. JWT is required to perform this action')
-    @limiter.limit('2/day')
+    @limiter.limit('10/day')
     @jwt_required()
     @token_required
     def put(self):
@@ -206,12 +206,19 @@ class ChangePassword(Resource):
         
         if user and check_password_hash(user.password, data['old_password']):
             if data['new_password'] == data['confirm_password']:
-                user.password = generate_password_hash(data['new_password'])
-                db.session.commit()
-                return {
-                    'success': True,
-                    'message': 'Password successfuly changed'
-                }, HTTPStatus.OK
+                if len(data['new_password']) > 5:
+                    user.password = generate_password_hash(data['new_password'])
+                    db.session.commit()
+                    return {
+                        'success': True,
+                        'message': 'Password successfuly changed'
+                    }, HTTPStatus.OK
+                else:
+                    return {
+                    'success': False,
+                    'message': 'your password should be more than 5 characters'
+                }, HTTPStatus.UNAUTHORIZED
+                
             else:
                 return {
                     'success': False,

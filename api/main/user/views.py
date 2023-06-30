@@ -59,7 +59,7 @@ class GetEditUserById(Resource):
 
         if current_user == user_id:
             try:
-                user.username = data['username']
+                user.username = data['username'].lower()
                 user.email = data['email']
                 db.session.commit()
             except IntegrityError:
@@ -89,7 +89,7 @@ class GetEditUserById(Resource):
                 Get User by username
             """
 
-            user = User.query.filter_by(username=username).first()
+            user = User.query.filter_by(username=username.lower()).first()
             return user, HTTPStatus.OK
 
     
