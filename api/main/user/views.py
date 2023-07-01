@@ -5,6 +5,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from http import HTTPStatus
 
 from ..models.user import User
+from ..config.config import cache
 from ..db import db
 from ..services.authServices import token_required
 from ..namespaces import user_model, basic_user_model
@@ -84,6 +85,7 @@ class GetEditUserById(Resource):
                 'username': 'A username'
             }
         )
+        @cache.cached(timeout=30)
         def get(self, username):
             """
                 Get User by username

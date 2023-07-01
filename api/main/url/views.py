@@ -114,7 +114,7 @@ class GetEditDeleteUrlByPath(Resource):
             }
         )
     @cache.cached()
-    @limiter.exempt
+    @limiter.limit('1/3 second')
     def get(self, url_path):
         """
             Get long URL by short URL path
@@ -124,13 +124,13 @@ class GetEditDeleteUrlByPath(Resource):
         host_name = socket.gethostname()
         host_ip = socket.gethostbyname(host_name)
         
-        serviceurl = 'http://www.geoplugin.net/json.gp?ip='
+        serviceurl = f'http://www.geoplugin.net/json.gp?ip={host_name}'
         response = requests.get(serviceurl).json()
         city = response['geoplugin_city']
         country = response['geoplugin_countryName']
-        print(f'this is hostname {host_name}')
-        print(f'this is host IP {host_ip}')
-        print(f'this is response {response}')
+        # print(f'this is hostname {host_name}')
+        # print(f'this is host IP {host_ip}')
+        # print(f'this is response {response}')
 
         address = f'{city}, {country}'
 
@@ -278,7 +278,7 @@ class GenerateQrCode(Resource):
             'url_path': 'A Short URL path excluding hostname'
         }
     )
-    @limiter.limit('4/day')
+    @limiter.limit('5/day')
     @jwt_required()
     def put(self, url_path):
         """
@@ -330,6 +330,6 @@ class ServeImage(Resource):
         """
             Get QRCode by name
         """
-        print(request.host_url)
+        
         #as_attachment makes it possible to download the file
         return send_from_directory(f"../{current_app.config['UPLOAD_FOLDER']}", filename, as_attachment=True)

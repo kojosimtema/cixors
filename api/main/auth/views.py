@@ -325,7 +325,7 @@ class ResetUserPassword(Resource):
         else:
             return {
                 'success': False,
-                'message': 'User not found or verified Please signup or check your mail for verification code'
+                'message': 'User not found or not verified Please signup or check your mail for verification code'
             }, HTTPStatus.UNAUTHORIZED
         # mail = Mail(app)
         msg = Message(
