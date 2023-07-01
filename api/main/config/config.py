@@ -20,9 +20,9 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 UPLOAD_FOLDER = 'static/images/qrCodes'
 
 #FOR POSTGRES DB
-# uri = os.getenv('DATABASE_URL') #or other relevant config var
-# if uri.startswith('postgres://'):
-#     uri = uri.replace('postgres://', 'postgresql://', 1)
+uri = os.getenv('DATABASE_URL') #or other relevant config var
+if uri.startswith('postgres://'):
+    uri = uri.replace('postgres://', 'postgresql://', 1)
 
 
 class Config:
@@ -58,10 +58,10 @@ class TestConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite://' #THIS USES SQL MEMORY DATABASE INSTEAD OF CREATING A NEW ONE
     
 class ProdConfig(Config):
-    # SQLALCHEMY_DATABASE_URI = uri
-    # SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # DEBUG = config('DEBUG', False, cast=bool)
-    pass
+    SQLALCHEMY_DATABASE_URI = uri
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    DEBUG = config('DEBUG', False, cast=bool)
+    # pass
 
 
 config_dict = {
