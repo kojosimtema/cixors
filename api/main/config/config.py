@@ -44,7 +44,7 @@ class Config:
     # CACHE_REDIS_URL = config('CACHE_REDIS_URL')
     
 class DevConfig(Config):
-    DEBUG = True
+    DEBUG = config('DEBUG', True, cast=bool)
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_TRACK_MODIFICATION = False
     # SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(BASE_DIR, 'db.sqlite3')

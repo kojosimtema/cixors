@@ -1,4 +1,4 @@
-import random, string
+import random, string, jwt
 from flask_restx import Resource, Namespace, abort
 from flask import request
 from flask import current_app as app
@@ -24,7 +24,7 @@ auth_namespace = Namespace('auth', description='Name space for authentication')
 @auth_namespace.route('/signup')
 class Signup(Resource):
     @auth_namespace.expect(signup_model)
-    @auth_namespace.marshal_with(user_model)
+    # @auth_namespace.marshal_with(user_model)
     @auth_namespace.doc(description='Sign up or create a new user')
     def post(self):
         """
@@ -48,9 +48,18 @@ class Signup(Resource):
                 try:
                     new_user.save()
                 except IntegrityError:
-                    abort(HTTPStatus.BAD_REQUEST, message=f'Username {username} or email {email} already exit. Please try a different username and or email')
+                    db.session.rollback()
+                    return{
+                        'success': False,
+                        'message': f'Username {username} or email {email} already exit. Please try a different username and or email'
+                    }, HTTPStatus.BAD_REQUEST
+                    # abort(HTTPStatus.BAD_REQUEST, message=f'Username {username} or email {email} already exit. Please try a different username and or email')
             else:
-                abort(HTTPStatus.UNAUTHORIZED, message='Your passwords do not match')
+                return {
+                    'success': False,
+                    'message': 'Your passwords do not match'
+                }, HTTPStatus.BAD_REQUEST
+                # abort(HTTPStatus.UNAUTHORIZED, message='Your passwords do not match')
 
             msg = Message(
                 subject='Email Verification', 
@@ -65,9 +74,17 @@ class Signup(Resource):
                         """
             mail.send(msg)
         else:
-            abort(HTTPStatus.BAD_REQUEST, message=f'Your password should be more than 5 characters')
+            return {
+                'success': False,
+                'message': f'Your password should be more than 5 characters'
+            }, HTTPStatus.BAD_REQUEST
+            # abort(HTTPStatus.BAD_REQUEST, message=f'Your password should be more than 5 characters')
         
-        return new_user, HTTPStatus.CREATED
+        # return new_user, HTTPStatus.CREATED
+        return {
+            'success': True,
+            'message': f'Successfully signed up. Check your email "{email}" for Verification Code'
+        }, HTTPStatus.CREATED
 
 @auth_namespace.route('/verify/<string:user_email>')
 class VerifyUser(Resource):
@@ -90,7 +107,7 @@ class VerifyUser(Resource):
                 db.session.commit()
                 return {
                     'success': True,
-                    'message': 'User successfully verified'
+                    'message': 'You have been successfully verified'
                 }, HTTPStatus.OK
             else:
                 return {
@@ -239,13 +256,20 @@ class Logout(Resource):
         """
             Logout a user
         """
-        jti = get_jwt()['jti']
-        blocked = Blocklist(jti=jti)
-        blocked.add_to_blocklist()
-        return{
-            'success': True,
-            'message': 'You have successfully logged out'
-        }, HTTPStatus.OK
+        try:
+            jti = get_jwt()['jti']
+            blocked = Blocklist(jti=jti)
+            blocked.add_to_blocklist()
+            return{
+                'success': True,
+                'message': 'You have successfully logged out'
+            }, HTTPStatus.OK
+        except Exception:
+            return{
+                'success': True,
+                'message': 'You have successfully logged out'
+            }, 500
+
     
 
 @auth_namespace.route('/checkvalidtoken')
@@ -295,13 +319,13 @@ class ResetUserPassword(Resource):
         characters = string.ascii_letters + string.digits
         temporal_pass = ''.join((random.choice(characters) for i in range(8)))
           
-        if user:
+        if user and user.is_verified:
             user.password = generate_password_hash(temporal_pass)
             db.session.commit()
         else:
             return {
                 'success': False,
-                'message': 'User not found'
+                'message': 'User not found or verified Please signup or check your mail for verification code'
             }, HTTPStatus.UNAUTHORIZED
         # mail = Mail(app)
         msg = Message(
