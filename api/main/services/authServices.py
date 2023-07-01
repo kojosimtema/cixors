@@ -36,12 +36,19 @@ def token_required(f):
             #     'message': 'Your token has expired, Please sign in again'
             # }, HTTPStatus.UNAUTHORIZED
             abort(HTTPStatus.UNAUTHORIZED, message='Token has expired. Please sign in')
+        except jwt.InvalidSignatureError:
+            # return {
+            #     'success': False,
+            #     'message': 'Invalid token, Please sign in again'
+            # }, HTTPStatus.UNAUTHORIZED
+            abort(500, message='Invalid token')
         except jwt.InvalidTokenError:
             # return {
             #     'success': False,
             #     'message': 'Invalid token, Please sign in again'
             # }, HTTPStatus.UNAUTHORIZED
-            abort(HTTPStatus.UNPROCESSABLE_ENTITY, message='Invalid token')  
+            abort(HTTPStatus.UNPROCESSABLE_ENTITY, message='Invalid token')
+          
         # except Exception as e:
         #     # return {
         #     #     'success': False,

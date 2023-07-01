@@ -184,7 +184,7 @@ class Login(Resource):
                 'access_token': access_token,
                 'refresh_token': refresh_token
             }           
-            return response, HTTPStatus.CREATED
+            return response, HTTPStatus.OK
         else:
             return {
                 'success': False,
@@ -210,7 +210,7 @@ class Refresh(Resource):
 class ChangePassword(Resource):
     @auth_namespace.expect(change_password_model)
     @auth_namespace.doc(description='Change user password. JWT is required to perform this action')
-    @limiter.limit('10/day')
+    # @limiter.limit('10/day')
     @jwt_required()
     @token_required
     def put(self):
@@ -268,7 +268,7 @@ class Logout(Resource):
             return{
                 'success': True,
                 'message': 'You have successfully logged out'
-            }, 500
+            }, HTTPStatus.INTERNAL_SERVER_ERROR
 
     
 

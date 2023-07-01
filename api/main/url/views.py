@@ -73,7 +73,7 @@ class GetAddUrl(Resource):
                             return redirect(url_for('self.post'))
                         except SQLAlchemyError:
                             db.session.rollback()
-                            abort(500, message='An error occured whiles adding Url')
+                            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='An error occured whiles adding Url')
                         return new_url, HTTPStatus.CREATED
                     else:
                         default_host = request.base_url
@@ -92,7 +92,7 @@ class GetAddUrl(Resource):
                             return redirect(url_for('self.post'))
                         except SQLAlchemyError:
                             db.session.rollback()
-                            abort(500, message='An error occured whiles adding Url')
+                            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='An error occured whiles adding Url')
                         return new_url, HTTPStatus.CREATED
             else:
                 abort(valid_url.status_code, message='URL not found. It might be broken or invalid')
@@ -194,7 +194,7 @@ class GetEditDeleteUrlById(Resource):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                abort(400, message='This short Url is already in use. Please try a different one')
+                abort(HTTPStatus.BAD_REQUEST, message='This short Url is already in use. Please try a different one')
             return {
                 'success': True,
                 'message': 'You have successfully customized your url',

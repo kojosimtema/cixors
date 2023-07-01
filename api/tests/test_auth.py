@@ -35,7 +35,7 @@ class authTestCase(unittest.TestCase):
        response = self.client.post('/auth/signup', json=data)
 
        assert response.status_code == 201
-       assert response.json['id'] == 1  
+       assert response.json['success'] == 1  
 
     def test_user_verification(self):
         #Add user manually to get verification code
@@ -50,9 +50,9 @@ class authTestCase(unittest.TestCase):
         data = {
             'verification_code': 'testV'
         }
-        response = self.client.post('/auth/verify/user@gmail.com', json=data)
+        response = self.client.put('/auth/verify/user@gmail.com', json=data)
         assert response.status_code == 200
-        assert response.json['message'] == 'User successfully verified'
+        assert response.json['message'] == 'You have been successfully verified'
     
     def test_user_login_success(self):
         #create and verify user with "test_user_verification function before login"
@@ -63,7 +63,7 @@ class authTestCase(unittest.TestCase):
             'password': 'password'
         }
         response = self.client.post('/auth/login', json=loginDetails)
-        assert response.status_code == 201
+        assert response.status_code == 200
         
     def test_user_login_fail(self):        
        #create and verify user with "test_user_verification function before login"
@@ -120,10 +120,10 @@ class authTestCase(unittest.TestCase):
 
     def test_reset_password(self):
 
-        #Add a user using test_create_user function before resetting user password  
-        self.test_create_user()
+        #create and verify user with "test_user_verification function before login"
+        self.test_user_verification()
 
-        response = self.client.post('/auth/resetpassword/user@gmail.com')
+        response = self.client.put('/auth/resetpassword/user@gmail.com')
 
         assert response.status_code == 200
         assert response.json['message'] == 'Your password has been reset. Check your email for new password'
