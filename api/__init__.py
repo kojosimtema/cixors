@@ -23,10 +23,9 @@ from .main.config.config import config_dict, cache, mail, limiter
 def create_app(config = config_dict['dev']):
     app = Flask(__name__)
     app.config.from_object(config)
-    # CORS(app,
-    #      origins=['https://cixor.onrender.com'],
-    #      supports_credentials=True
-    # )
+    CORS(app,
+         supports_credentials=True
+    )
     # CORS(app, origins=['http://localhost:3000'])
 
     #initiate cache instance
