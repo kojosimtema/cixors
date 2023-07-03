@@ -10,7 +10,7 @@ from http import HTTPStatus
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt, set_access_cookies, unset_jwt_cookies
 from flask_jwt_extended.exceptions import JWTExtendedException
 
-from ..config.config import mail, limiter
+from ..config.config import mail, limiter, cache
 from ..services.authServices import token_required
 from ..models.user import User
 from ..models.blocklist import Blocklist
@@ -277,6 +277,7 @@ class CheckTokenValidity(Resource):
     @auth_namespace.doc(description='Check is a JWT is valid, blocked or expired')
     @jwt_required()
     @token_required
+    @cache.cached(timeout=60)
     def get(self):
         """
         Check validity of JWT
@@ -296,7 +297,7 @@ class CheckTokenValidity(Resource):
             return {
                 'valid_token': False,
                 'message': 'Token has been has expired or is invalid. Please signin again'
-            }, HTTPStatus.UNAUTHORIZED
+            }, 500
         return {
             'valid_token': True,
             'message': 'Token is valid and active'
