@@ -96,7 +96,8 @@ class GetAddUrl(Resource):
                         return new_url, HTTPStatus.CREATED
             else:
                 abort(valid_url.status_code, message='URL not found. It might be broken or invalid')
-
+        except FileNotFoundError:
+            abort(HTTPStatus.NOT_FOUND, message='URL not found. It might be broken or invalid')
         except Exception:
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='URL not found. It might be broken or invalid')
         
