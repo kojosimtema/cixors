@@ -24,7 +24,7 @@ def create_app(config = config_dict['dev']):
     app = Flask(__name__)
     app.config.from_object(config)
     CORS(app,
-         origins=['https://cixors.onrender.com', 'http://localhost:3000'],
+         origins=['https://cixor.onrender.com', 'http://localhost:3000'],
          supports_credentials=True
     )
     # CORS(app, origins=['http://localhost:3000'])
