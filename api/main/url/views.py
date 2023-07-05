@@ -24,7 +24,7 @@ url_namespace = Namespace('scx', description='Namespace for URLs')
 class GetAddUrl(Resource):
     @url_namespace.marshal_list_with(url_model)
     @url_namespace.doc(description='Get all URLs.')
-    @cache.cached()
+    # @cache.cached()
     def get(self):
         """
             Get All URLs
@@ -44,15 +44,15 @@ class GetAddUrl(Resource):
         user_id = get_jwt_identity()
         current_user = User.get_by_id(user_id)
         data = request.get_json()
+        url_exit = Url.query.filter_by(long_url = data.get('long_url')).filter_by(user_id=user_id).first()
 
-        try:
-            valid_url = requests.get(data.get('long_url'))
-            if valid_url.status_code == HTTPStatus.OK:
-                url_exit = Url.query.filter_by(long_url = data.get('long_url')).filter_by(user_id=user_id).first()
-
-                if url_exit:
-                    abort(HTTPStatus.CONFLICT, message=f'You already have a short URL for this resource {url_exit.short_url}. Please try a different resource')
-                else:
+        if url_exit:
+            abort(HTTPStatus.CONFLICT, message=f'You already have a short URL for this resource {url_exit.short_url}. Please try a different resource')
+        else: 
+            try:
+                valid_url = requests.get(data.get('long_url'))
+                if valid_url.status_code == HTTPStatus.OK:
+                    
                     characters = string.ascii_letters + string.digits
                     hostname = data.get('host_url')
                     url_path = ''.join((random.choice(characters) for i in range(7)))
@@ -94,65 +94,65 @@ class GetAddUrl(Resource):
                             db.session.rollback()
                             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='An error occured whiles adding Url')
                         return new_url, HTTPStatus.CREATED
-            else:
-                abort(valid_url.status_code, message='URL not found. It might be broken or invalid')
-        except FileNotFoundError:
-            abort(HTTPStatus.NOT_FOUND, message='URL not found. It might be broken or invalid')
-        except Exception:
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='URL not found. It might be broken or invalid')
-        
+                else:
+                    abort(valid_url.status_code, message='URL not found. It might be broken or invalid')
+            except FileNotFoundError:
+                abort(HTTPStatus.NOT_FOUND, message='URL not found. It might be broken or invalid')
+            except Exception:
+                abort(HTTPStatus.INTERNAL_SERVER_ERROR, message='URL not found. It might be broken or invalid')
+            
+                    
                 
             
+    @url_namespace.route('/<url_path>')
+    class GetEditDeleteUrlByPath(Resource):
+
+        @url_namespace.marshal_with(long_url_model)
+        @url_namespace.doc(
+            description='Get a long URL using the short URL path excluding the hostname or host url',
+            params = {
+                'url_path': 'Short URL path without hostname'
+                }
+            )
+        @cache.cached()
+        @limiter.limit('1/3 second')
+        def get(self, url_path):
+            """
+                Get long URL by short URL path
+            """
+            url = Url.query.filter_by(url_path = url_path).first()
+            
+            host_name = socket.gethostname()
+            host_ip = socket.gethostbyname(host_name)
+            
+            serviceurl = f'http://www.geoplugin.net/json.gp?ip={host_name}'
+            response = requests.get(serviceurl).json()
+            city = response['geoplugin_city']
+            country = response['geoplugin_countryName']
+            # print(f'this is hostname {host_name}')
+            # print(f'this is host IP {host_ip}')
+            # print(f'this is response {response}')
+
+            address = f'{city}, {country}'
+
+            if url:
+                url_stats = Statistic.query.filter_by(url_id=url.id).filter_by(hostname=host_name).filter_by(host_ip=host_ip).filter_by(address=address).first()
+
+                if not url_stats:
+                    new_stats = Statistic(
+                            address = address,
+                            city = city,
+                            country = country,
+                            hostname = host_name,
+                            host_ip = host_ip
+                        )
+                    new_stats.url = url
+                    new_stats.save()
+
+                url.updateClicks()
+
+            return url, HTTPStatus.OK
         
-@url_namespace.route('/<url_path>')
-class GetEditDeleteUrlByPath(Resource):
-
-    @url_namespace.marshal_with(long_url_model)
-    @url_namespace.doc(
-        description='Get a long URL using the short URL path excluding the hostname or host url',
-        params = {
-            'url_path': 'Short URL path without hostname'
-            }
-        )
-    @cache.cached()
-    @limiter.limit('1/3 second')
-    def get(self, url_path):
-        """
-            Get long URL by short URL path
-        """
-        url = Url.query.filter_by(url_path = url_path).first()
-        
-        host_name = socket.gethostname()
-        host_ip = socket.gethostbyname(host_name)
-        
-        serviceurl = f'http://www.geoplugin.net/json.gp?ip={host_name}'
-        response = requests.get(serviceurl).json()
-        city = response['geoplugin_city']
-        country = response['geoplugin_countryName']
-        # print(f'this is hostname {host_name}')
-        # print(f'this is host IP {host_ip}')
-        # print(f'this is response {response}')
-
-        address = f'{city}, {country}'
-
-        if url:
-            url_stats = Statistic.query.filter_by(url_id=url.id).filter_by(hostname=host_name).filter_by(host_ip=host_ip).filter_by(address=address).first()
-
-            if not url_stats:
-                new_stats = Statistic(
-                        address = address,
-                        city = city,
-                        country = country,
-                        hostname = host_name,
-                        host_ip = host_ip
-                    )
-                new_stats.url = url
-                new_stats.save()
-
-            url.updateClicks()
-
-        return url, HTTPStatus.OK
-    
 @url_namespace.route('/<int:url_id>')
 class GetEditDeleteUrlById(Resource):
     @url_namespace.marshal_with(url_model)
