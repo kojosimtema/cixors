@@ -27,8 +27,8 @@ if uri.startswith('postgres://'):
 
 class Config:
     SECRET_KEY = config('SECRET_KEY', 'secret')
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=2)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=2)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=120)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=120)
     JWT_SECRET_KEY = config('JWT_SECRET_KEY', 'jwt_secret')
     UPLOAD_FOLDER = UPLOAD_FOLDER
     MAIL_SERVER = config('MAIL_SERVER')
@@ -37,16 +37,14 @@ class Config:
     MAIL_PASSWORD = config('MAIL_PASSWORD')
     MAIL_USE_TLS = config('MAIL_USE_TLS', False, cast=bool)
     MAIL_USE_SSL = config('MAIL_USE_SSL', True, cast=bool)
-    CACHE_TYPE = config('CACHE_TYPE', 'SimpleCache')
     CACHE_DEFAULT_TIMEOUT = config('CACHE_DEFAULT_TIMEOUT', 30, cast=int)
-    # CACHE_REDIS_HOST = config('CACHE_REDIS_HOST')
-    # CACHE_REDIS_PORT = config('CACHE_REDIS_PORT')
-    # CACHE_REDIS_URL = config('CACHE_REDIS_URL')
+    
     
 class DevConfig(Config):
     DEBUG = config('DEBUG', True, cast=bool)
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_TRACK_MODIFICATION = False
+    CACHE_TYPE = config('CACHE_TYPE', 'SimpleCache')
     # SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(BASE_DIR, 'db.sqlite3')
     SQLALCHEMY_DATABASE_URI = 'postgresql://cixors_database_user:2N21VdPNnabrxPYayGMYzOICS0mOzaa8@dpg-cieq12dgkuvlk1hu7p70-a.oregon-postgres.render.com/cixors_database'
     
@@ -61,6 +59,11 @@ class ProdConfig(Config):
     SQLALCHEMY_DATABASE_URI = uri
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = config('DEBUG', False, cast=bool)
+    CACHE_TYPE = config('CACHE_TYPE', 'RedisCache')
+    CACHE_REDIS_HOST = config('CACHE_REDIS_HOST')
+    CACHE_REDIS_PORT = config('CACHE_REDIS_PORT')
+    CACHE_REDIS_URL = config('CACHE_REDIS_URL')
+    RATELIMIT_STORAGE_URI = config('RATE_LIMIT_STORAGE_URI')
     # pass
 
 
