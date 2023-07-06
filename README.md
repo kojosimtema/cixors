@@ -1,2 +1,2 @@
 # cixors
-Cixors is a URL Shortener application. This is the APL built with Flask RestX
+Cixors is a URL Shortener application. This is the API built with Flask RestX
