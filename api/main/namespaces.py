@@ -8,7 +8,7 @@ namespaces = Namespace('namespaces', description='Namespaces')
 basic_user_model = namespaces.model(
     'Basic_User', {
         'username': fields.String(required=True, description='A username'),
-        'email': fields.String(required=True, description='An email'),
+        'email': fields.String(required=True, description='An email')
     }
 )
 
@@ -43,7 +43,7 @@ stats_model = namespaces.model(
     'Statistics', {
         'address': fields.String(),
         'hostname': fields.String(),
-        'host_ip': fields.String(),
+        'host_ip': fields.String()
     }
 )
 
@@ -71,7 +71,7 @@ basic_url_model = namespaces.model(
         'id': fields.Integer(),
         'short_url': fields.String(),
         'long_url': fields.String(),
-        'clicks': fields.Integer(),
+        'clicks': fields.Integer()
     }
 )
 
@@ -80,7 +80,7 @@ url_model = namespaces.inherit(
         'host_url': fields.String(),
         'url_path': fields.String(),
         'qr_code': fields.String(),
-        'analytics': fields.List(fields.Nested(stats_model)),
+        'analytics': fields.List(fields.Nested(stats_model))
     }
 )
 
