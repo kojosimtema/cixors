@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from http import HTTPStatus
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt, set_access_cookies, unset_jwt_cookies
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt, get_jti
 from flask_jwt_extended.exceptions import JWTExtendedException
 
 from ..config.config import mail, limiter, cache
@@ -195,7 +195,7 @@ class Login(Resource):
 class Refresh(Resource):
     @jwt_required(refresh=True)
     @auth_namespace.doc(description='Refresh a JWT Access Token')
-    @token_required
+    # @token_required
     def get(self):
         """
             Refresh JWT Access Token
@@ -212,7 +212,7 @@ class ChangePassword(Resource):
     @auth_namespace.doc(description='Change user password. JWT is required to perform this action')
     # @limiter.limit('10/day')
     @jwt_required()
-    @token_required
+    # @token_required
     def put(self):
         """
             Change user password
@@ -247,57 +247,56 @@ class ChangePassword(Resource):
                 'message': 'your old password is incorrect'
             }, HTTPStatus.UNAUTHORIZED
         
-@auth_namespace.route('/logout')
+@auth_namespace.route('/logout/<token>')
 class Logout(Resource):
     @auth_namespace.doc(description='Logout a user and block JWT')
-    @jwt_required()
-    @token_required
-    def post(self):
+    def post(self, token):
         """
             Logout a user
         """
-        try:
-            jti = get_jwt()['jti']
-            blocked = Blocklist(jti=jti)
-            blocked.add_to_blocklist()
-            return{
-                'success': True,
-                'message': 'You have successfully logged out'
-            }, HTTPStatus.OK
-        except Exception:
-            return{
-                'success': True,
-                'message': 'You have successfully logged out'
-            }, HTTPStatus.INTERNAL_SERVER_ERROR
+        jti = jwt.decode(
+            token,
+            algorithms= 'HS256',
+            options={"verify_signature": False}
+        )['jti']
+        blocked = Blocklist(jti=jti)
+        blocked.add_to_blocklist()
+        return{
+            'success': True,
+            'message': 'You have successfully logged out'
+        }, HTTPStatus.OK
 
     
 
-@auth_namespace.route('/checkvalidtoken')
+@auth_namespace.route('/checkvalidtoken/<token>')
 class CheckTokenValidity(Resource):
-    @auth_namespace.doc(description='Check is a JWT is valid, blocked or expired')
-    @jwt_required()
-    @token_required
+    @auth_namespace.doc(description='Check if a JWT is valid, blocked or expired')
     @cache.cached(timeout=60)
-    def get(self):
+    def get(self, token):
         """
         Check validity of JWT
         """
+        
         try:
-            user_id = get_jwt_identity()
-            jti = get_jwt()['jti']
+            jti = get_jti(token)
             blockedJti = Blocklist.query.filter_by(jti=jti).first()
             if blockedJti:
                 return {
                     'valid_token': False,
                     'message': 'Token is blocked. Please signin again'
-                }, HTTPStatus.UNAUTHORIZED
+                }, HTTPStatus.FORBIDDEN
         except Exception:
+            jti = jwt.decode(
+                token,
+                algorithms= 'HS256',
+                options={"verify_signature": False}
+            )['jti']
             blocked = Blocklist(jti=jti)
             blocked.add_to_blocklist()
-            return {
+            return{
                 'valid_token': False,
-                'message': 'Token has been has expired or is invalid. Please signin again'
-            }, 500
+                'message': 'Token expired. Please signin again'
+            }, HTTPStatus.FORBIDDEN 
         return {
             'valid_token': True,
             'message': 'Token is valid and active'

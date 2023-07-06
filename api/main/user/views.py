@@ -49,7 +49,7 @@ class GetEditUserById(Resource):
         }
     )
     @jwt_required()
-    @token_required
+    # @token_required
     def put(self, user_id):
         """
             Update user by id

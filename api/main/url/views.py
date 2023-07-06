@@ -36,7 +36,7 @@ class GetAddUrl(Resource):
     @url_namespace.doc(description='Generate a Short URL. JWT is required to perform this action')
     @limiter.limit('10/day')
     @jwt_required()
-    @token_required
+    # @token_required
     def post(self):
         """
             Generate short URL
@@ -177,7 +177,7 @@ class GetEditDeleteUrlById(Resource):
             'url_id': 'A URL ID'
         }
     )
-    @token_required
+    # @token_required
     def put(self, url_id):
         """
             Edit URL by ID

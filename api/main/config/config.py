@@ -20,15 +20,15 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 UPLOAD_FOLDER = 'static/images/qrCodes'
 
 #FOR POSTGRES DB
-uri = os.getenv('DATABASE_URL') #or other relevant config var
-if uri.startswith('postgres://'):
-    uri = uri.replace('postgres://', 'postgresql://', 1)
+# uri = os.getenv('DATABASE_URL') #or other relevant config var
+# if uri.startswith('postgres://'):
+#     uri = uri.replace('postgres://', 'postgresql://', 1)
 
 
 class Config:
     SECRET_KEY = config('SECRET_KEY', 'secret')
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=120)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=120)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=2)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=2)
     JWT_SECRET_KEY = config('JWT_SECRET_KEY', 'jwt_secret')
     UPLOAD_FOLDER = UPLOAD_FOLDER
     MAIL_SERVER = config('MAIL_SERVER')
@@ -58,10 +58,10 @@ class TestConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite://' #THIS USES SQL MEMORY DATABASE INSTEAD OF CREATING A NEW ONE
     
 class ProdConfig(Config):
-    SQLALCHEMY_DATABASE_URI = uri
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    DEBUG = config('DEBUG', False, cast=bool)
-    # pass
+    # SQLALCHEMY_DATABASE_URI = uri
+    # SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # DEBUG = config('DEBUG', False, cast=bool)
+    pass
 
 
 config_dict = {
