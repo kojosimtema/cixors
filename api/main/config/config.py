@@ -63,7 +63,7 @@ class ProdConfig(Config):
     CACHE_REDIS_HOST = config('CACHE_REDIS_HOST')
     CACHE_REDIS_PORT = config('CACHE_REDIS_PORT')
     CACHE_REDIS_URL = config('CACHE_REDIS_URL')
-    RATELIMIT_STORAGE_URI = config('RATE_LIMIT_STORAGE_URI')
+    RATELIMIT_STORAGE_URI = config('RATELIMIT_STORAGE_URI')
     # pass
 
 
