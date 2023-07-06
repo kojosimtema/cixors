@@ -19,7 +19,7 @@ limiter = Limiter(key_func=get_remote_address)
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 UPLOAD_FOLDER = 'static/images/qrCodes'
 
-#FOR POSTGRES DB
+#FOR POSTGRES DB IN PRODUCTION
 uri = os.getenv('DATABASE_URL') #or other relevant config var
 if uri.startswith('postgres://'):
     uri = uri.replace('postgres://', 'postgresql://', 1)
@@ -45,8 +45,8 @@ class DevConfig(Config):
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_TRACK_MODIFICATION = False
     CACHE_TYPE = config('CACHE_TYPE', 'SimpleCache')
-    # SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(BASE_DIR, 'db.sqlite3')
-    SQLALCHEMY_DATABASE_URI = 'postgresql://cixors_database_user:2N21VdPNnabrxPYayGMYzOICS0mOzaa8@dpg-cieq12dgkuvlk1hu7p70-a.oregon-postgres.render.com/cixors_database'
+    # SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(BASE_DIR, 'db.sqlite3') #USE FOR SQLITE
+    SQLALCHEMY_DATABASE_URI = config('DATABASE_URL') #USE FOR POSTGRESQL
     
 
 class TestConfig(Config):
