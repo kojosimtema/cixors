@@ -239,7 +239,7 @@ class GetUrlByUserId(Resource):
 
     @url_namespace.marshal_with(url_model)
     @url_namespace.doc(
-        description='Get a URL by the User ID',
+        description='Get all URLs a of user by the User ID',
         params = {
             'user_id': 'A User ID'
         }
@@ -247,7 +247,7 @@ class GetUrlByUserId(Resource):
     @cache.cached(timeout=30)
     def get(self, user_id):
         """
-            Get URL by User ID
+            Get URLs by User ID
         """
         user_url = Url.query.filter_by(user_id = user_id).order_by(Url.clicks.desc()).all()
         return user_url, HTTPStatus.OK
