@@ -32,11 +32,12 @@ Cixors allows users to shorten URLs by pasting a long URL into the Cixors platfo
 
 ### Custome URLs
 <img align="center" src="https://beyondplm.com/wp-content/uploads/2014/03/plm-customization.jpg" alt="customize" />
+
 Cixors also allows users to customize their shortened URLs. Users can customize the shorl URL to reflect their brand or content. To choose their own custom domain name as well, users will need to integrate our API on thier website and send a request with thier customized domian name. Our API can be found [here](https://cixors.onrender.com/) for testing. This feature is particularly useful for individuals or small businesses who want to create branded links for their business
 
 ### QRCode Generation
 <img align="center" src="https://staveapps.com/wp-content/uploads/2021/03/1792-1.png" alt="customize" />
-Cixors allows users to also generate QR codes for the shortened URLs. Users can download the QR code image and use it in their promotional materials or/and on their website.
+Cixors allows users to also generate QR codes for the shortened URLs. Users can download the QR code image and use it in their promotional materials or/and on their website. 
 
 ### Analytics and History
 <img align="center" src="https://www.searchenginejournal.com/wp-content/uploads/2020/02/10-great-google-analytics-alternatives-5e4175671fa6a.png" alt="customize" />
