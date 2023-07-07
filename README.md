@@ -1,5 +1,11 @@
 # CIXORS
 Cixors is a URL Shortener application. This is the API built with Flask RestX
+- [API Swagger UI](https://cixors.onrender.com/)
+- [API Documentation](https://cixors.stoplight.io/docs/cixors-url-shortener/branches/main/spqrv6qmaugyp-cixors-url-shortener)
+- [Frontend Repo](https://github.com/kojosimtema/cixors-frontend)
+- [Frontend](https://cixor.onrender.com/)
+
+
 
 ## Table of Contents
  - [About](#about)
