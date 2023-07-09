@@ -122,16 +122,20 @@ class GetAddUrl(Resource):
             """
             url = Url.query.filter_by(url_path = url_path).first()
             
-            host_name = socket.gethostname()
-            host_ip = socket.gethostbyname(host_name)
+            # host_name = socket.gethostname()
+            # host_ip = socket.gethostbyname(host_name)
+            host_name = request.remote_addr
+            host_ip = request.remote_user
+            print(f"this is hostname {host_name}")
+            print(f"this is host ip {host_ip}")
             
-            serviceurl = f'http://www.geoplugin.net/json.gp?ip={host_name}'
+            serviceurl = f'http://www.geoplugin.net/json.gp?ip='
             response = requests.get(serviceurl).json()
             city = response['geoplugin_city']
             country = response['geoplugin_countryName']
-            # print(f'this is hostname {host_name}')
-            # print(f'this is host IP {host_ip}')
-            # print(f'this is response {response}')
+            print(f'this is hostname {host_name}')
+            print(f'this is host IP {host_ip}')
+            print(f'this is response {response}')
 
             address = f'{city}, {country}'
 
@@ -144,7 +148,7 @@ class GetAddUrl(Resource):
                             city = city,
                             country = country,
                             hostname = host_name,
-                            host_ip = host_ip
+                            host_ip = response['geoplugin_request']
                         )
                     new_stats.url = url
                     new_stats.save()
@@ -244,7 +248,7 @@ class GetUrlByUserId(Resource):
             'user_id': 'A User ID'
         }
     )
-    @cache.cached(timeout=30)
+    # @cache.cached(timeout=30)
     def get(self, user_id):
         """
             Get URLs by User ID
