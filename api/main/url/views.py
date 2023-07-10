@@ -34,7 +34,7 @@ class GetAddUrl(Resource):
     @url_namespace.expect(long_url_model)
     @url_namespace.marshal_with(short_url_model)
     @url_namespace.doc(description='Generate a Short URL. JWT is required to perform this action')
-    @limiter.limit('10/day')
+    @limiter.limit('40/day')
     @jwt_required()
     # @token_required
     def post(self):
@@ -122,38 +122,40 @@ class GetAddUrl(Resource):
             """
             url = Url.query.filter_by(url_path = url_path).first()
             
-            # headers = request.headers
+            r_a = request.remote_addr
+            user_ip = request.headers.getlist("X-Forwarded-For", r_a)
             user_agent = str(request.user_agent)
             # serviceurl = f'http://www.geoplugin.net/json.gp?ip='
 
-            response = requests.get('http://ip-api.com/json').json()
+            # response = requests.get('http://ip-api.com/json/').json()
+            response = requests.get(f'http://ipinfo.io/json/{user_ip}').json()
             city = response['city']
             country = response['country']
-            user_ip = response['query']
             address = f'{city}, {country}'
-
-            # print(f"this is Request Header {headers}")
+            
+            print(f"this is Remote Address {r_a}")
+            print(f"this is Request Header {user_ip}")
             print(f"this is user agent {user_agent}")
             print(f'this is response {response}')
             
 
-            if url:
-                url_stats = Statistic.query.filter_by(url_id=url.id).filter_by(user_agent=user_agent).filter_by(ip_address=user_ip).filter_by(address=address).first()
+            # if url:
+            #     url_stats = Statistic.query.filter_by(url_id=url.id).filter_by(user_agent=user_agent).filter_by(ip_address=user_ip).filter_by(address=address).first()
 
-                if not url_stats:
-                    new_stats = Statistic(
-                            address = address,
-                            city = city,
-                            country = country,
-                            user_agent = user_agent,
-                            ip_address = user_ip
-                        )
-                    new_stats.url = url
-                    new_stats.save()
+            #     if not url_stats:
+            #         new_stats = Statistic(
+            #                 address = address,
+            #                 city = city,
+            #                 country = country,
+            #                 user_agent = user_agent,
+            #                 ip_address = user_ip
+            #             )
+            #         new_stats.url = url
+            #         new_stats.save()
 
-                url.updateClicks()
+            #     url.updateClicks()
 
-            return url, HTTPStatus.OK
+            # return url, HTTPStatus.OK
         
 @url_namespace.route('/<int:url_id>')
 class GetEditDeleteUrlById(Resource):
@@ -281,7 +283,7 @@ class GenerateQrCode(Resource):
             'url_path': 'A Short URL path excluding hostname'
         }
     )
-    @limiter.limit('5/day')
+    @limiter.limit('60/day')
     @jwt_required()
     def put(self, url_path):
         """
