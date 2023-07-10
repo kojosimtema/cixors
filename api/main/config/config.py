@@ -45,8 +45,8 @@ class DevConfig(Config):
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_TRACK_MODIFICATION = False
     CACHE_TYPE = config('CACHE_TYPE', 'SimpleCache')
-    # SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(BASE_DIR, 'db.sqlite3') #USE FOR SQLITE
-    SQLALCHEMY_DATABASE_URI = config('DATABASE_URL') #USE FOR POSTGRESQL
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(BASE_DIR, 'db.sqlite3') #USE FOR SQLITE
+    # SQLALCHEMY_DATABASE_URI = config('DATABASE_URL') #USE FOR POSTGRESQL
     
 
 class TestConfig(Config):

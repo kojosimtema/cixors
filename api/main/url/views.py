@@ -1,4 +1,4 @@
-import random, string, requests, socket, uuid, os
+import random, string, requests, uuid, os
 
 from datetime import datetime
 from flask_restx import Resource, Namespace, abort
@@ -122,33 +122,31 @@ class GetAddUrl(Resource):
             """
             url = Url.query.filter_by(url_path = url_path).first()
             
-            # host_name = socket.gethostname()
-            # host_ip = socket.gethostbyname(host_name)
-            host_name = request.remote_addr
-            host_ip = request.remote_user
-            print(f"this is hostname {host_name}")
-            print(f"this is host ip {host_ip}")
-            
-            serviceurl = f'http://www.geoplugin.net/json.gp?ip='
-            response = requests.get(serviceurl).json()
-            city = response['geoplugin_city']
-            country = response['geoplugin_countryName']
-            print(f'this is hostname {host_name}')
-            print(f'this is host IP {host_ip}')
-            print(f'this is response {response}')
+            # headers = request.headers
+            user_agent = str(request.user_agent)
+            # serviceurl = f'http://www.geoplugin.net/json.gp?ip='
 
+            response = requests.get('http://ip-api.com/json').json()
+            city = response['city']
+            country = response['country']
+            user_ip = response['query']
             address = f'{city}, {country}'
 
+            # print(f"this is Request Header {headers}")
+            print(f"this is user agent {user_agent}")
+            print(f'this is response {response}')
+            
+
             if url:
-                url_stats = Statistic.query.filter_by(url_id=url.id).filter_by(hostname=host_name).filter_by(host_ip=host_ip).filter_by(address=address).first()
+                url_stats = Statistic.query.filter_by(url_id=url.id).filter_by(user_agent=user_agent).filter_by(ip_address=user_ip).filter_by(address=address).first()
 
                 if not url_stats:
                     new_stats = Statistic(
                             address = address,
                             city = city,
                             country = country,
-                            hostname = host_name,
-                            host_ip = response['geoplugin_request']
+                            user_agent = user_agent,
+                            ip_address = user_ip
                         )
                     new_stats.url = url
                     new_stats.save()
