@@ -127,15 +127,17 @@ class GetAddUrl(Resource):
             user_agent = str(request.user_agent)
             # serviceurl = f'http://www.geoplugin.net/json.gp?ip='
 
-            # response = requests.get(f'http://ip-api.com/json/{user_agent}').json()
             if remote_ip == '127.0.0.1':
-                response = requests.get('http://ip-api.com/json').json()
-                user_ip = response['query']
+                # response = requests.get('http://ip-api.com/json').json()
+                # user_ip = response['query']
+                response = requests.get('http://www.geoplugin.net/json.gp?ip=').json()
+                user_ip = response['geoplugin_request']
             else:
-                response = requests.get(f'http://ip-api.com/json/{remote_ip}').json()
+                # response = requests.get(f'http://ip-api.com/json/{remote_ip}').json()
+                response = requests.get(f'http://www.geoplugin.net/json.gp?ip={remote_ip}').json()
                 user_ip = remote_ip
-            city = response['city']
-            country = response['country']
+            city = response['geoplugin_city']
+            country = response['geoplugin_countryName']
             address = f'{city}, {country}'
             
             print(f"this is Remote Address {r_a}")
