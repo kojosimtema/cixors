@@ -42,8 +42,8 @@ change_password_model = namespaces.model(
 stats_model = namespaces.model(
     'Statistics', {
         'address': fields.String(),
-        'hostname': fields.String(),
-        'host_ip': fields.String()
+        'user_agent': fields.String(),
+        'ip_address': fields.String()
     }
 )
 
