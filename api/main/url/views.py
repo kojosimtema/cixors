@@ -129,7 +129,7 @@ class GetAddUrl(Resource):
 
             # response = requests.get(f'http://ip-api.com/json/{user_agent}').json()
             if remote_ip == '127.0.0.1':
-                response = requests.get(f'http://ip-api.com/json/').json()
+                response = requests.get('http://ip-api.com/json').json()
                 user_ip = response['query']
             else:
                 response = requests.get(f'http://ip-api.com/json/{remote_ip}').json()
