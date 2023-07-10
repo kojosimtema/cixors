@@ -123,12 +123,17 @@ class GetAddUrl(Resource):
             url = Url.query.filter_by(url_path = url_path).first()
             
             r_a = request.remote_addr
-            user_ip = request.headers.get("X-Real-IP", r_a)
+            remote_ip = request.headers.get("X-Forwarded-For", r_a)
             user_agent = str(request.user_agent)
             # serviceurl = f'http://www.geoplugin.net/json.gp?ip='
 
-            # response = requests.get('http://ip-api.com/json/').json()
-            response = requests.get(f'http://ipinfo.io/json/{user_agent}').json()
+            # response = requests.get(f'http://ip-api.com/json/{user_agent}').json()
+            if remote_ip == '127.0.0.1':
+                response = requests.get(f'http://ip-api.com/json/').json()
+                user_ip = response['query']
+            else:
+                response = requests.get(f'http://ip-api.com/json/{remote_ip}').json()
+                user_ip = remote_ip
             city = response['city']
             country = response['country']
             address = f'{city}, {country}'
@@ -139,23 +144,23 @@ class GetAddUrl(Resource):
             print(f'this is response {response}')
             
 
-            # if url:
-            #     url_stats = Statistic.query.filter_by(url_id=url.id).filter_by(user_agent=user_agent).filter_by(ip_address=user_ip).filter_by(address=address).first()
+            if url:
+                url_stats = Statistic.query.filter_by(url_id=url.id).filter_by(user_agent=user_agent).filter_by(ip_address=user_ip).filter_by(address=address).first()
 
-            #     if not url_stats:
-            #         new_stats = Statistic(
-            #                 address = address,
-            #                 city = city,
-            #                 country = country,
-            #                 user_agent = user_agent,
-            #                 ip_address = user_ip
-            #             )
-            #         new_stats.url = url
-            #         new_stats.save()
+                if not url_stats:
+                    new_stats = Statistic(
+                            address = address,
+                            city = city,
+                            country = country,
+                            user_agent = user_agent,
+                            ip_address = user_ip
+                        )
+                    new_stats.url = url
+                    new_stats.save()
 
-            #     url.updateClicks()
+                url.updateClicks()
 
-            # return url, HTTPStatus.OK
+            return url, HTTPStatus.OK
         
 @url_namespace.route('/<int:url_id>')
 class GetEditDeleteUrlById(Resource):
