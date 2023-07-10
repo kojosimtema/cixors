@@ -123,12 +123,12 @@ class GetAddUrl(Resource):
             url = Url.query.filter_by(url_path = url_path).first()
             
             r_a = request.remote_addr
-            user_ip = request.headers.getlist("X-Forwarded-For", r_a)
+            user_ip = request.headers.get("X-Real-IP", r_a)
             user_agent = str(request.user_agent)
             # serviceurl = f'http://www.geoplugin.net/json.gp?ip='
 
             # response = requests.get('http://ip-api.com/json/').json()
-            response = requests.get(f'http://ipinfo.io/json/{user_ip}').json()
+            response = requests.get(f'http://ipinfo.io/json/{user_agent}').json()
             city = response['city']
             country = response['country']
             address = f'{city}, {country}'
