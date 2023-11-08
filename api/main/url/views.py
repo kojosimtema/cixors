@@ -124,6 +124,8 @@ class GetAddUrl(Resource):
             
             r_a = request.remote_addr
             remote_ip = request.headers.get("X-Forwarded-For", r_a)
+            rm_ip = remote_ip.split(",")
+            current_ip = rm_ip[0]
             user_agent = str(request.user_agent)
             # serviceurl = f'http://www.geoplugin.net/json.gp?ip='
 
@@ -134,8 +136,8 @@ class GetAddUrl(Resource):
                 user_ip = response['geoplugin_request']
             else:
                 # response = requests.get(f'http://ip-api.com/json/{remote_ip}').json()
-                response = requests.get(f'http://www.geoplugin.net/json.gp?ip={remote_ip}').json()
-                user_ip = remote_ip
+                response = requests.get(f'http://www.geoplugin.net/json.gp?ip={current_ip}').json()
+                user_ip = current_ip
             city = response['geoplugin_city']
             country = response['geoplugin_countryName']
             address = f'{city}, {country}'
